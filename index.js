@@ -45,9 +45,11 @@
 
     const command = args[0]
     const corePhrase = hashJS.sha512().update(args[1]).digest("hex")
-    var secret = hashJS.sha256().update(args.slice(2).join(" ")).digest("hex")
-    secret = `${corePhrase}-${secret}-${corePhrase.slice(0, corePhrase.length/0.5)}${secret.slice(0, secret.length/0.5)}`
-    console.log(`Secret: ${secret}\n`)
+    const secret = hashJS.sha256().update(args.slice(2).join(" ")).digest("hex")
+    const combinedKey = `${corePhrase}-${secret}-${corePhrase.slice(0, Math.ceil(corePhrase.length/2))}${secret.slice(0, Math.ceil(secret.length/2))}`
+    console.log(`Core Phrase: ${corePhrase}`)
+    console.log(`Secret: ${secret}`)
+    console.log(`Combined Key: ${combinedKey}\n`)
     
     if(command === "input"){
         const inputData = fs.readFileSync("./input.txt", "utf8")
@@ -56,13 +58,13 @@
             process.exit()
         }
 
-        const result = await updateData(secret, simpleAES256.encrypt(corePhrase, inputData).toString("hex"))
+        const result = await updateData(secret, simpleAES256.encrypt(combinedKey, inputData).toString("hex"))
         result.match("datasaved") ? console.log("Successfully updated.") : console.log("Failed to update.")
     }else if(command === "output"){
         const result = await getData(secret)
         
         if(result.pad_content){
-            console.log(simpleAES256.decrypt(corePhrase, Buffer.from(result.pad_content, "hex")).toString("utf8"))
+            console.log(simpleAES256.decrypt(combinedKey, Buffer.from(result.pad_content, "hex")).toString("utf8"))
         }else{
             console.log("The note is empty.")
         }

@@ -64,9 +64,9 @@
         if(result.pad_content){
             console.log(simpleAES256.decrypt(corePhrase, Buffer.from(result.pad_content, "hex")).toString("utf8"))
         }else{
-            console.log("It's empty.")
+            console.log("The note is empty.")
         }
     }else{
-        console.log("Invalid command.")
+        console.log("Invalid command (input/output).")
     }
 })()
